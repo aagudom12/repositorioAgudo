@@ -34,6 +34,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .build();
     }
 
+    public Usuario obtenerUsuarioPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+    }
+
+
     /*public Usuario registrarUsuario(Usuario usuario) {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // Encriptar antes de guardar
         return usuarioRepository.save(usuario);

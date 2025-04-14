@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Editar Noticia</title>
+</head>
+<body>
+<div class="container mt-4">
+  <h2>Editar Noticia</h2>
+  <form th:action="@{/actualizarNoticia}" th:object="${noticia}" method="post">
+    <input type="hidden" th:field="*{id}" />
+    <div class="mb-3">
+      <label for="titulo">Título:</label>
+      <input type="text" id="titulo" class="form-control" th:field="*{titulo}" required />
+    </div>
+    <div class="mb-3">
+      <label for="contenido">Contenido:</label>
+      <textarea id="contenido" class="form-control" th:field="*{contenido}" rows="5" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+    <a th:href="@{/inicio}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+</body>
+</html>

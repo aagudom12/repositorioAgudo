@@ -1,10 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-<h1>Bienvenido</h1>
+
+<header class="bg-primary text-white p-3 mb-4">
+    <div class="container">
+        <h1 class="mb-0">Inicio</h1>
+        <nav class="d-flex align-items-center justify-content-between">
+
+            <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <li class="nav-item">
+                    <a class="nav-link text-white" th:href="@{/nuevaNoticia}">Crear Noticia</a>
+                </li>
+            </th:block>
+
+            <div class="login-form">
+                <th:block sec:authorize="isAnonymous()">
+                    <form th:action="@{/login}" method="post" class="d-flex align-items-center">
+                        <input type="text" name="username" placeholder="Username" class="form-control me-2" />
+                        <input type="password" name="password" placeholder="Password" class="form-control me-2" />
+                        <input type="submit" value="Log in" class="btn btn-primary" />
+                        <a th:href="@{/nuevoUsuario}" class="btn btn-outline-light ms-3">Regístrate</a>
+                    </form>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <div class="d-flex align-items-center">
+                        <span>Bienvenido <span sec:authentication="name"></span></span>
+                        <a href="#" id="logoutEnlace" onclick="document.getElementById('formLogOut').submit()">Cerrar Sesión</a>
+                        <form th:action="@{/logout}" method="post" id="formLogOut"></form>
+                    </div>
+                </th:block>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<h2 class="text-center">Últimas Noticias</h2>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12" th:if="${noticias != null and #lists.isEmpty(noticias) == false}">
+            <div th:each="noticia : ${noticias}" class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${noticia.titulo}">Título de la Noticia</h5>
+                    <p class="card-text" th:text="${noticia.contenido}">Contenido de la noticia...</p>
+                    <p class="card-text">
+                        <small class="text-muted">Publicada por <span th:text="${noticia.admin.nombre}">Admin</span> el
+                            <span th:text="${#temporals.format(noticia.fechaPublicacion, 'dd/MM/yyyy HH:mm')}"></span>
+                        </small>
+                    </p>
+                    <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+                        <a class="btn btn-sm btn-warning" th:href="@{'/editarNoticia/' + ${noticia.id}}">Editar</a>
+                    </th:block>
+                    <a class="btn btn-sm btn-danger"
+                       th:href="@{'/eliminarNoticia/' + ${noticia.id}}"
+                       onclick="return confirm('¿Estás seguro de que quieres eliminar esta noticia?')">Eliminar</a>
+                </div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(noticias)}">
+            <p class="text-center">Aún no hay noticias.</p>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
