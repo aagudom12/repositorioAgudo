@@ -6,7 +6,7 @@
 <body>
 <div class="container mt-4">
   <h2>Editar Noticia</h2>
-  <form th:action="@{/actualizarNoticia}" th:object="${noticia}" method="post">
+  <form th:action="@{/actualizarNoticia}" th:object="${noticia}" method="post" enctype="multipart/form-data">
     <input type="hidden" th:field="*{id}" />
     <div class="mb-3">
       <label for="titulo">Título:</label>
@@ -16,6 +16,22 @@
       <label for="contenido">Contenido:</label>
       <textarea id="contenido" class="form-control" th:field="*{contenido}" rows="5" required></textarea>
     </div>
+
+    <!-- Mostrar imágenes actuales -->
+    <div class="mb-3">
+      <label>Imágenes actuales:</label>
+      <div th:each="foto : ${noticia.fotos}">
+        <img th:src="@{${foto.url}}" alt="Imagen" width="100" />
+        <a th:href="@{/eliminarFoto/{id}(id=${foto.id})}" class="btn btn-danger btn-sm">Eliminar</a>
+      </div>
+    </div>
+
+    <!-- Añadir nuevas imágenes -->
+    <div class="mb-3">
+      <label for="imagenes">Añadir nuevas imágenes:</label>
+      <input type="file" name="imagenes" id="imagenes" multiple />
+    </div>
+
     <button type="submit" class="btn btn-primary">Actualizar</button>
     <a th:href="@{/inicio}" class="btn btn-secondary">Cancelar</a>
   </form>

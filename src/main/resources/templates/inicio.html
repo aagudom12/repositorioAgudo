@@ -46,6 +46,9 @@
             <div th:each="noticia : ${noticias}" class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${noticia.titulo}">Título de la Noticia</h5>
+                    <div th:if="${noticia.fotos != null}">
+                        <img th:each="foto : ${noticia.fotos}" th:src="@{${foto.url}}" alt="Imagen de la noticia" style="width:200px; margin:10px" />
+                    </div>
                     <p class="card-text" th:text="${noticia.contenido}">Contenido de la noticia...</p>
                     <p class="card-text">
                         <small class="text-muted">Publicada por <span th:text="${noticia.admin.nombre}">Admin</span> el
@@ -65,6 +68,24 @@
             <p class="text-center">Aún no hay noticias.</p>
         </div>
     </div>
+</div>
+
+<div class="pagination">
+    <ul>
+        <li th:if="${currentPage > 0}">
+            <a th:href="@{'/inicio?page=' + ${currentPage - 1}}">Anterior</a>
+        </li>
+
+        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{'/inicio?page=' + ${i}}"
+               th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'">Número</a>
+        </li>
+
+        <li th:if="${currentPage < totalPages - 1}">
+            <a th:href="@{'/inicio?page=' + ${currentPage + 1}}">Siguiente</a>
+        </li>
+    </ul>
 </div>
 
 </body>

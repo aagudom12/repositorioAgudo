@@ -9,7 +9,7 @@
 <body>
 <div class="container mt-5">
     <h2>Crear Nueva Noticia</h2>
-    <form th:action="@{/guardarNoticia}" th:object="${noticia}" method="post">
+    <form th:action="@{/guardarNoticia}" th:object="${noticia}" method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="titulo" class="form-label">Título</label>
             <input type="text" th:field="*{titulo}" class="form-control" id="titulo" required>
@@ -18,6 +18,9 @@
             <label for="contenido" class="form-label">Contenido</label>
             <textarea th:field="*{contenido}" class="form-control" id="contenido" rows="5" required></textarea>
         </div>
+
+        <input type="file" name="imagenes" multiple />
+
         <button type="submit" class="btn btn-primary">Guardar Noticia</button>
     </form>
 </div>
