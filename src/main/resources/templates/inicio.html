@@ -45,7 +45,7 @@
         <div class="col-md-12" th:if="${noticias != null and #lists.isEmpty(noticias) == false}">
             <div th:each="noticia : ${noticias}" class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${noticia.titulo}">Título de la Noticia</h5>
+                    <h5><a th:href="@{/noticia/{id}(id=${noticia.id})}" th:text="${noticia.titulo}"></a></h5>
                     <div th:if="${noticia.fotos != null}">
                         <img th:each="foto : ${noticia.fotos}" th:src="@{${foto.url}}" alt="Imagen de la noticia" style="width:200px; margin:10px" />
                     </div>
@@ -57,10 +57,10 @@
                     </p>
                     <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
                         <a class="btn btn-sm btn-warning" th:href="@{'/editarNoticia/' + ${noticia.id}}">Editar</a>
-                    </th:block>
                     <a class="btn btn-sm btn-danger"
                        th:href="@{'/eliminarNoticia/' + ${noticia.id}}"
                        onclick="return confirm('¿Estás seguro de que quieres eliminar esta noticia?')">Eliminar</a>
+                    </th:block>
                 </div>
             </div>
         </div>

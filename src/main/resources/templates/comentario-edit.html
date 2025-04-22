@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Editar Comentario</title>
+</head>
+<body>
+<div class="container">
+    <h2>Editar Comentario</h2>
+    <form th:action="@{/comentario/actualizar}" th:object="${comentario}" method="post">
+        <input type="hidden" th:field="*{id}" />
+        <textarea th:field="*{contenido}" class="form-control" rows="4" required></textarea>
+        <br />
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+    </form>
+    <a th:href="@{/inicio}" class="btn btn-secondary">Volver al inicio</a>
+</div>
+</body>
+</html>

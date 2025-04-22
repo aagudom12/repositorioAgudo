@@ -1,8 +1,10 @@
 package com.alfredo.proyectoDaw.controller;
 
+import com.alfredo.proyectoDaw.entity.Comentario;
 import com.alfredo.proyectoDaw.entity.Foto;
 import com.alfredo.proyectoDaw.entity.Noticia;
 import com.alfredo.proyectoDaw.entity.Usuario;
+import com.alfredo.proyectoDaw.service.ComentarioService;
 import com.alfredo.proyectoDaw.service.CustomUserDetailsService;
 import com.alfredo.proyectoDaw.service.FotoService;
 import com.alfredo.proyectoDaw.service.NoticiaService;
@@ -31,12 +33,14 @@ public class NoticiaController {
     private NoticiaService noticiaService;
     private FotoService fotoService;
     private CustomUserDetailsService usuarioService;
+    private ComentarioService comentarioService;
 
     @Autowired
-    public NoticiaController(NoticiaService noticiaService, CustomUserDetailsService usuarioService, FotoService fotoService) {
+    public NoticiaController(NoticiaService noticiaService, CustomUserDetailsService usuarioService, FotoService fotoService, ComentarioService comentarioService) {
         this.noticiaService = noticiaService;
         this.usuarioService = usuarioService;
         this.fotoService = fotoService;
+        this.comentarioService = comentarioService;
     }
 
     @GetMapping("/nuevaNoticia")
@@ -137,6 +141,79 @@ public class NoticiaController {
         return "redirect:/editarNoticia/" + foto.getNoticia().getId();
     }
 
+    @GetMapping("/noticia/{id}")
+    public String verNoticia(@PathVariable Long id, Model model) {
+        Noticia noticia = noticiaService.buscarPorId(id);
+        List<Comentario> comentarios = comentarioService.obtenerPorNoticia(noticia);
+
+        model.addAttribute("noticia", noticia);
+        model.addAttribute("comentarios", comentarios);
+        model.addAttribute("nuevoComentario", new Comentario());
+
+        return "noticia-detalle";
+    }
+
+    @PostMapping("/noticia/{id}/comentario")
+    public String agregarComentario(@PathVariable Long id,
+                                    @RequestParam("texto") String texto,
+                                    Authentication auth) {
+
+        Noticia noticia = noticiaService.buscarPorId(id);
+        Usuario usuario = usuarioService.obtenerUsuarioPorEmail(auth.getName());
+
+        Comentario comentario = new Comentario();
+        comentario.setContenido(texto);
+        comentario.setNoticia(noticia);
+        comentario.setUsuario(usuario);
+        comentario.setFechaComentario(LocalDateTime.now());
+
+        comentarioService.guardar(comentario);
+
+        return "redirect:/noticia/" + id;
+    }
+
+    @GetMapping("/comentario/editar/{id}")
+    public String editarComentario(@PathVariable Long id, Model model, Authentication auth) {
+        Comentario comentario = comentarioService.buscarPorId(id);
+        Usuario usuario = usuarioService.obtenerUsuarioPorEmail(auth.getName());
+
+        if (!comentario.getUsuario().getId().equals(usuario.getId())) {
+            return "redirect:/inicio"; // O lanzar un 403 Forbidden
+        }
+
+        model.addAttribute("comentario", comentario);
+        return "comentario-edit"; // Vista que crearás abajo
+    }
+
+    @PostMapping("/comentario/actualizar")
+    public String actualizarComentario(@ModelAttribute Comentario comentarioForm, Authentication auth) {
+        Comentario original = comentarioService.buscarPorId(comentarioForm.getId());
+        Usuario usuario = usuarioService.obtenerUsuarioPorEmail(auth.getName());
+
+        if (!original.getUsuario().getId().equals(usuario.getId())) {
+            return "redirect:/inicio";
+        }
+
+        original.setContenido(comentarioForm.getContenido());
+        comentarioService.guardar(original);
+
+        return "redirect:/noticia/" + original.getNoticia().getId();
+    }
+
+    @PostMapping("/comentario/eliminar/{id}")
+    public String eliminarComentario(@PathVariable Long id, Authentication auth) {
+        Comentario comentario = comentarioService.buscarPorId(id);
+        Usuario usuario = usuarioService.obtenerUsuarioPorEmail(auth.getName());
+
+        if (!comentario.getUsuario().getId().equals(usuario.getId())) {
+            return "redirect:/inicio";
+        }
+
+        Long noticiaId = comentario.getNoticia().getId();
+        comentarioService.eliminar(comentario);
+
+        return "redirect:/noticia/" + noticiaId;
+    }
 
 
 }

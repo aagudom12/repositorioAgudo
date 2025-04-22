@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${noticia.titulo}">Detalle Noticia</title>
+</head>
+<body>
+<div class="container mt-4">
+    <h2 th:text="${noticia.titulo}">Título</h2>
+    <p th:text="${noticia.contenido}">Contenido</p>
+    <p><strong>Publicado:</strong> <span th:text="${#temporals.format(noticia.fechaPublicacion, 'dd/MM/yyyy HH:mm')}"></span></p>
+
+    <hr/>
+    <h4>Comentarios</h4>
+
+    <div th:each="comentario : ${comentarios}">
+        <p><strong th:text="${comentario.usuario.nombre}">Usuario</strong>: <span th:text="${comentario.contenido}"></span></p>
+
+        <div th:if="${#authentication.name == comentario.usuario.email}">
+            <a th:href="@{'/comentario/editar/' + ${comentario.id}}" class="btn btn-sm btn-warning">Editar</a>
+            <form th:action="@{'/comentario/eliminar/' + ${comentario.id}}" method="post"
+                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');"
+                  style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+            </form>
+        </div>
+
+        <small th:text="${#temporals.format(comentario.fechaComentario, 'dd/MM/yyyy HH:mm')}"></small>
+        <hr/>
+    </div>
+
+    <th:block sec:authorize="isAuthenticated()">
+        <form th:action="@{'/noticia/' + ${noticia.id} + '/comentario'}" method="post">
+            <textarea name="texto" class="form-control" required></textarea>
+            <button type="submit" class="btn btn-primary mt-2">Comentar</button>
+        </form>
+    </th:block>
+
+    <a th:href="@{/inicio}" class="btn btn-secondary">Volver al inicio</a>
+</div>
+</body>
+</html>

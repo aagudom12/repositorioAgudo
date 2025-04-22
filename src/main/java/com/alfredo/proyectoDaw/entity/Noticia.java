@@ -36,4 +36,8 @@ public class Noticia {
 
     @OneToMany(mappedBy = "noticia", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Foto> fotos;
+
+    @OneToMany(mappedBy = "noticia", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comentario> comentarios;
+
 }

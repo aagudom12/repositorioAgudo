@@ -1,0 +1,37 @@
+package com.alfredo.proyectoDaw.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+
+@Entity
+@Table(name = "comentarios")
+public class Comentario {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "noticia_id", nullable = false)
+    private Noticia noticia;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String contenido;
+
+    @Column(nullable = false)
+    private LocalDateTime fechaComentario;
+}
