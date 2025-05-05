@@ -34,4 +34,12 @@ public class Comentario {
 
     @Column(nullable = false)
     private LocalDateTime fechaComentario;
+
+
+    @Transient
+    private boolean usuarioLeDioLike;
+
+    @Transient
+    private int numeroLikes;
+
 }

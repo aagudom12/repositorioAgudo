@@ -4,10 +4,7 @@ import com.alfredo.proyectoDaw.entity.Comentario;
 import com.alfredo.proyectoDaw.entity.Foto;
 import com.alfredo.proyectoDaw.entity.Noticia;
 import com.alfredo.proyectoDaw.entity.Usuario;
-import com.alfredo.proyectoDaw.service.ComentarioService;
-import com.alfredo.proyectoDaw.service.CustomUserDetailsService;
-import com.alfredo.proyectoDaw.service.FotoService;
-import com.alfredo.proyectoDaw.service.NoticiaService;
+import com.alfredo.proyectoDaw.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,13 +31,15 @@ public class NoticiaController {
     private FotoService fotoService;
     private CustomUserDetailsService usuarioService;
     private ComentarioService comentarioService;
+    private ComentarioLikeService comentarioLikeService;
 
     @Autowired
-    public NoticiaController(NoticiaService noticiaService, CustomUserDetailsService usuarioService, FotoService fotoService, ComentarioService comentarioService) {
+    public NoticiaController(NoticiaService noticiaService, CustomUserDetailsService usuarioService, FotoService fotoService, ComentarioService comentarioService, ComentarioLikeService comentarioLikeService) {
         this.noticiaService = noticiaService;
         this.usuarioService = usuarioService;
         this.fotoService = fotoService;
         this.comentarioService = comentarioService;
+        this.comentarioLikeService = comentarioLikeService;
     }
 
     @GetMapping("/nuevaNoticia")
@@ -142,9 +141,25 @@ public class NoticiaController {
     }
 
     @GetMapping("/noticia/{id}")
-    public String verNoticia(@PathVariable Long id, Model model) {
+    public String verNoticia(@PathVariable Long id, Model model, Authentication auth) {
         Noticia noticia = noticiaService.buscarPorId(id);
         List<Comentario> comentarios = comentarioService.obtenerPorNoticia(noticia);
+
+        Usuario usuario = null;
+        List<Long> idsComentariosConLike = new ArrayList<>();
+
+        if (auth != null) {
+            usuario = usuarioService.obtenerUsuarioPorEmail(auth.getName());
+            model.addAttribute("usuarioActual", usuario);
+            // En lugar de reasignar, modificamos directamente la lista
+            idsComentariosConLike.addAll(comentarioLikeService.obtenerIdsComentariosConLikeDelUsuario(usuario));
+        }
+
+        // Ahora esta variable es "efectivamente final"
+        comentarios.forEach(c -> {
+            c.setUsuarioLeDioLike(idsComentariosConLike.contains(c.getId()));
+            c.setNumeroLikes(comentarioLikeService.contarLikesPorComentario(c));
+        });
 
         model.addAttribute("noticia", noticia);
         model.addAttribute("comentarios", comentarios);
@@ -152,6 +167,7 @@ public class NoticiaController {
 
         return "noticia-detalle";
     }
+
 
     @PostMapping("/noticia/{id}/comentario")
     public String agregarComentario(@PathVariable Long id,
@@ -205,14 +221,39 @@ public class NoticiaController {
         Comentario comentario = comentarioService.buscarPorId(id);
         Usuario usuario = usuarioService.obtenerUsuarioPorEmail(auth.getName());
 
-        if (!comentario.getUsuario().getId().equals(usuario.getId())) {
+        boolean esPropietario = comentario.getUsuario().getId().equals(usuario.getId());
+        boolean esAdmin = auth.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+
+        if (esPropietario || esAdmin) {
+            comentarioService.eliminar(comentario);
+        }
+
+        return "redirect:/noticia/" + comentario.getNoticia().getId();
+
+        /*if (!comentario.getUsuario().getId().equals(usuario.getId())) {
             return "redirect:/inicio";
         }
 
         Long noticiaId = comentario.getNoticia().getId();
         comentarioService.eliminar(comentario);
 
-        return "redirect:/noticia/" + noticiaId;
+        return "redirect:/noticia/" + noticiaId;*/
+    }
+
+
+    @PostMapping("/comentario/{id}/like")
+    public String toggleLike(@PathVariable Long id, Authentication auth) {
+        Comentario comentario = comentarioService.buscarPorId(id);
+        Usuario usuario = usuarioService.obtenerUsuarioPorEmail(auth.getName());
+
+        if (comentarioLikeService.haDadoLike(comentario, usuario)) {
+            comentarioLikeService.quitarLike(comentario, usuario);
+        } else {
+            comentarioLikeService.darLike(comentario, usuario);
+        }
+
+        return "redirect:/noticia/" + comentario.getNoticia().getId();
     }
 
 

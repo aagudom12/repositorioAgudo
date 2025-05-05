@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="${noticia.titulo}">Detalle Noticia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 <div class="container mt-4">
@@ -15,14 +16,28 @@
     <div th:each="comentario : ${comentarios}">
         <p><strong th:text="${comentario.usuario.nombre}">Usuario</strong>: <span th:text="${comentario.contenido}"></span></p>
 
+        <!-- Mostrar solo si el comentario es del usuario actual -->
         <div th:if="${#authentication.name == comentario.usuario.email}">
             <a th:href="@{'/comentario/editar/' + ${comentario.id}}" class="btn btn-sm btn-warning">Editar</a>
+        </div>
+
+        <!-- Mostrar si el usuario es el propietario del comentario o un admin -->
+        <div th:if="${#authentication.name == comentario.usuario.email or #authorization.expression('hasRole(''ADMIN'')')}">
             <form th:action="@{'/comentario/eliminar/' + ${comentario.id}}" method="post"
                   onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');"
                   style="display:inline;">
                 <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
             </form>
         </div>
+
+        <!-- Botón de like -->
+        <form th:action="@{'/comentario/' + ${comentario.id} + '/like'}" method="post" style="display:inline;">
+            <button type="submit"style="background:none; border:none; cursor:pointer;">
+                <i class="fa-heart"
+                   th:classappend="${comentario.usuarioLeDioLike} ? 'fas text-danger' : 'far text-muted'"></i>
+                <span th:text="${comentario.numeroLikes}">0</span>
+            </button>
+        </form>
 
         <small th:text="${#temporals.format(comentario.fechaComentario, 'dd/MM/yyyy HH:mm')}"></small>
         <hr/>
