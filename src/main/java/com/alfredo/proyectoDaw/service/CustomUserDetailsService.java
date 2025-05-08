@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,5 +55,22 @@ public class CustomUserDetailsService implements UserDetailsService {
         usuario.setRol("USER"); // Asignar el rol por defecto
         usuarioRepository.save(usuario);
     }
+
+    public List<Usuario> listarTodos() {
+        return usuarioRepository.findAll();
+    }
+
+    public void eliminarUsuario(Long id) {
+        usuarioRepository.deleteById(id);
+    }
+
+    public Usuario buscarPorId(Long id) {
+        return usuarioRepository.findById(id).orElse(null);
+    }
+
+    public void guardar(Usuario usuario) {
+        usuarioRepository.save(usuario);
+    }
+
 
 }

@@ -18,6 +18,13 @@
                 </li>
             </th:block>
 
+            <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <li class="nav-item">
+                    <a class="nav-link text-white" th:href="@{/admin/usuarios}">Ver Usuarios</a>
+                </li>
+            </th:block>
+
+
             <div class="login-form">
                 <th:block sec:authorize="isAnonymous()">
                     <form th:action="@{/login}" method="post" class="d-flex align-items-center">
@@ -29,7 +36,10 @@
                 </th:block>
                 <th:block sec:authorize="isAuthenticated()">
                     <div class="d-flex align-items-center">
-                        <span>Bienvenido <span sec:authentication="name"></span></span>
+                        <span>
+                          Bienvenido
+                          <a th:href="@{/perfil}" sec:authentication="name" style="text-decoration: underline;"></a>
+                        </span>
                         <a href="#" id="logoutEnlace" onclick="document.getElementById('formLogOut').submit()">Cerrar Sesión</a>
                         <form th:action="@{/logout}" method="post" id="formLogOut"></form>
                     </div>

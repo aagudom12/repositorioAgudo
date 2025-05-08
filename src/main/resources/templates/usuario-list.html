@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <title>Listado de Usuarios</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<h2>Usuarios registrados</h2>
+
+<!-- Mensajes de éxito o error -->
+<div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Email</th>
+    <th>Rol</th>
+    <th>Acciones</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="usuario : ${usuarios}">
+    <td th:text="${usuario.id}"></td>
+    <td th:text="${usuario.nombre}"></td>
+    <td th:text="${usuario.email}"></td>
+    <td th:text="${usuario.rol}"></td>
+    <td>
+      <!-- Formulario para cambiar el rol -->
+      <form th:action="@{'/admin/usuarios/cambiarRol/' + ${usuario.id}}" method="post" style="display:inline">
+        <input type="submit"
+               th:value="${usuario.rol == 'USER' ? 'Hacer ADMIN' : 'Hacer USER'}"
+               class="btn btn-sm"
+               th:classappend="${usuario.rol == 'USER'} ? 'btn-warning' : 'btn-secondary'"
+               onclick="return confirm('¿Seguro que quieres cambiar el rol de este usuario?')" />
+      </form>
+
+      <!-- Enlace para eliminar, oculto si es el usuario actual -->
+      <span th:if="${#authentication.name != usuario.email}">
+        <a href="#" th:href="@{'/admin/eliminarUsuario/' + ${usuario.id}}"
+           class="btn btn-danger btn-sm"
+           onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?')">Eliminar</a>
+      </span>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<!-- Enlace para volver al inicio -->
+<a th:href="@{/}" class="btn btn-primary mt-3">Volver al Inicio</a>
+
+</body>
+</html>

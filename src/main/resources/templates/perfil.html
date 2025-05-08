@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Mi Perfil</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<h2>Mi Perfil</h2>
+
+<div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+
+<form th:action="@{/perfil}" th:object="${usuario}" method="post">
+  <label>Nombre:</label>
+  <input type="text" th:field="*{nombre}" required /><br/>
+
+  <label>Apellidos:</label>
+  <input type="text" th:field="*{apellidos}" /><br/>
+
+  <label>Email:</label>
+  <input type="email" th:field="*{email}" required /><br/>
+
+  <input type="submit" value="Guardar cambios" class="btn btn-primary"/>
+</form>
+
+<a th:href="@{/}" class="btn btn-secondary">Volver</a>
+
+</body>
+</html>
