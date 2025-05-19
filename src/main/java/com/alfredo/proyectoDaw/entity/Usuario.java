@@ -1,5 +1,6 @@
 package com.alfredo.proyectoDaw.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,4 +29,9 @@ public class Usuario {
     @Column(length = 500)
     private String password;
     private String rol;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Foto fotoPerfil;
+
 }

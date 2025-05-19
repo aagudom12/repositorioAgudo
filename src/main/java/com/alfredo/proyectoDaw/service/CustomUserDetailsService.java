@@ -9,9 +9,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -72,5 +79,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         usuarioRepository.save(usuario);
     }
 
+    public String guardarFotoPerfil(MultipartFile archivo) throws IOException {
+        Path directorioFotosPerfil = Paths.get("uploads/fotosPerfil");
+        if (!Files.exists(directorioFotosPerfil)) {
+            Files.createDirectories(directorioFotosPerfil);
+        }
+
+        String nombreArchivo = UUID.randomUUID() + "_" + archivo.getOriginalFilename();
+        Path destino = directorioFotosPerfil.resolve(nombreArchivo);
+        Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+
+        return "/uploads/fotosPerfil/" + nombreArchivo;
+    }
 
 }

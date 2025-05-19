@@ -19,9 +19,13 @@ public class Foto {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "idNoticia", nullable = false)
+    @JoinColumn(name = "idNoticia", nullable = true)
     private Noticia noticia;
 
     @Column(nullable = false)
     private String url;
+
+    @OneToOne
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
 }

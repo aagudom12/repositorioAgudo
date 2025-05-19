@@ -1,6 +1,8 @@
 package com.alfredo.proyectoDaw.controller;
 
+import com.alfredo.proyectoDaw.entity.Foto;
 import com.alfredo.proyectoDaw.entity.Usuario;
+import com.alfredo.proyectoDaw.service.FotoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,22 +13,30 @@ import org.springframework.stereotype.Controller;
 import com.alfredo.proyectoDaw.service.CustomUserDetailsService;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class UsuarioController {
 
     private final CustomUserDetailsService usuarioService;
 
+    private final FotoService fotoService;
+
     @Autowired
-    public UsuarioController(CustomUserDetailsService usuarioService) {
+    public UsuarioController(CustomUserDetailsService usuarioService, FotoService fotoService) {
         this.usuarioService = usuarioService;
+        this.fotoService = fotoService;
     }
 
     @GetMapping("/nuevoUsuario")
@@ -138,20 +148,63 @@ public class UsuarioController {
     @PostMapping("/perfil")
     @PreAuthorize("isAuthenticated()")
     public String actualizarPerfil(@ModelAttribute("usuario") Usuario usuarioForm,
-                                   Authentication auth, RedirectAttributes redirectAttributes) {
+                                   @RequestParam("foto") MultipartFile archivoFoto,
+                                   Authentication auth,
+                                   RedirectAttributes redirectAttributes) {
         String email = auth.getName();
         Usuario usuarioActual = usuarioService.obtenerUsuarioPorEmail(email);
 
-        // Actualizar campos editables
+        // Actualizar campos del formulario
         usuarioActual.setNombre(usuarioForm.getNombre());
         usuarioActual.setApellidos(usuarioForm.getApellidos());
-        usuarioActual.setEmail(usuarioForm.getEmail()); // solo si lo permites
+        usuarioActual.setEmail(usuarioForm.getEmail());
+
+        // Solo procesar la foto si se subió algo
+        if (!archivoFoto.isEmpty()) {
+            try {
+                // Guarda el archivo en disco
+                String nombreArchivo = UUID.randomUUID() + "_" + archivoFoto.getOriginalFilename();
+                String rutaCarpeta = "uploads/fotosPerfil/";
+                File directorio = new File(rutaCarpeta);
+                if (!directorio.exists()) {
+                    directorio.mkdirs();
+                }
+
+                Path rutaCompleta = Paths.get(rutaCarpeta + nombreArchivo);
+                Files.copy(archivoFoto.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
+
+                // Si el usuario ya tenía foto previa, elimínala (opcional)
+                if (usuarioActual.getFotoPerfil() != null) {
+                    Foto fotoAnterior = usuarioActual.getFotoPerfil();
+
+                    usuarioActual.setFotoPerfil(null);
+                    fotoAnterior.setUsuario(null);
+
+                    fotoService.eliminarFoto(fotoAnterior);
+                }
+
+                // Crear la entidad Foto
+                Foto nuevaFoto = new Foto();
+                nuevaFoto.setUrl("/" + rutaCarpeta + nombreArchivo); // para que se pueda mostrar como URL
+                nuevaFoto.setUsuario(usuarioActual); // importante si tienes la relación @OneToOne con Usuario
+
+                // Asignar la nueva foto al usuario
+                usuarioActual.setFotoPerfil(nuevaFoto);
+
+                // Guardar la nueva foto
+                fotoService.guardarFoto(nuevaFoto);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
 
         usuarioService.guardar(usuarioActual);
         redirectAttributes.addFlashAttribute("mensaje", "Perfil actualizado con éxito");
-
         return "redirect:/perfil";
     }
+
+
 
 
 

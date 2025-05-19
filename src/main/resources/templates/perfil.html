@@ -10,7 +10,7 @@
 
 <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
 
-<form th:action="@{/perfil}" th:object="${usuario}" method="post">
+<form th:action="@{/perfil}" th:object="${usuario}" method="post" enctype="multipart/form-data">
   <label>Nombre:</label>
   <input type="text" th:field="*{nombre}" required /><br/>
 
@@ -20,8 +20,15 @@
   <label>Email:</label>
   <input type="email" th:field="*{email}" required /><br/>
 
+  <label for="fotoPerfil">Foto de perfil:</label>
+  <input type="file" name="foto" id="fotoPerfil" accept="image/*" />
+
   <input type="submit" value="Guardar cambios" class="btn btn-primary"/>
 </form>
+
+<div th:if="${usuario.fotoPerfil != null}">
+  <img th:src="@{${usuario.fotoPerfil.url}}" alt="Foto de perfil" width="150" />
+</div>
 
 <a th:href="@{/}" class="btn btn-secondary">Volver</a>
 
