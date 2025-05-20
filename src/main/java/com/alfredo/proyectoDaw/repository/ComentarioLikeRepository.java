@@ -16,5 +16,8 @@ public interface ComentarioLikeRepository extends JpaRepository<ComentarioLike, 
 
     List<ComentarioLike> findByUsuario(Usuario usuario);
 
+    void deleteByComentario(Comentario comentario);
+
+
 }
 
