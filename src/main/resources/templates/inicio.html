@@ -53,6 +53,13 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12" th:if="${noticias != null and #lists.isEmpty(noticias) == false}">
+            <div class="btn-group mb-3">
+                <a href="/inicio" class="btn btn-secondary">Todas</a>
+                <a href="/noticias/categoria/Fichajes" class="btn btn-outline-primary">Fichajes</a>
+                <a href="/noticias/categoria/Partidos" class="btn btn-outline-primary">Partidos</a>
+                <a href="/noticias/categoria/Resultados" class="btn btn-outline-primary">Resultados</a>
+            </div>
+
             <div th:each="noticia : ${noticias}" class="card mb-3">
                 <div class="card-body">
                     <h5><a th:href="@{/noticia/{id}(id=${noticia.id})}" th:text="${noticia.titulo}"></a></h5>
@@ -97,6 +104,16 @@
         </li>
     </ul>
 </div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">📊 Estadísticas del sistema</h5>
+        <p class="card-text">
+            <strong>Total de noticias publicadas:</strong> <span th:text="${totalNoticias}">0</span>
+        </p>
+    </div>
+</div>
+
 
 </body>
 </html>

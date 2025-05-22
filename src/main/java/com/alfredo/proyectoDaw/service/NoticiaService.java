@@ -42,4 +42,13 @@ public class NoticiaService {
         return noticiaRepository.findAll(pageable);
     }
 
+    public Page<Noticia> buscarPorCategoria(String categoria, int page) {
+        Pageable pageable = PageRequest.of(page, 5, Sort.by("fechaPublicacion").descending());
+        return noticiaRepository.findByCategoriaIgnoreCase(categoria, pageable);
+    }
+
+    public long contarNoticias() {
+        return noticiaRepository.count();
+    }
+
 }

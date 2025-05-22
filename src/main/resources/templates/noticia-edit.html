@@ -12,6 +12,14 @@
       <label for="titulo">Título:</label>
       <input type="text" id="titulo" class="form-control" th:field="*{titulo}" required />
     </div>
+
+    <label for="categoria">Categoría:</label>
+    <select id="categoria" name="categoria" th:field="*{categoria}" required>
+      <option value="Fichajes">Fichajes</option>
+      <option value="Partidos">Partidos</option>
+      <option value="Resultados">Resultados</option>
+    </select>
+
     <div class="mb-3">
       <label for="contenido">Contenido:</label>
       <textarea id="contenido" class="form-control" th:field="*{contenido}" rows="5" required></textarea>

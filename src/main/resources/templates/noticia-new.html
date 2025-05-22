@@ -14,6 +14,15 @@
             <label for="titulo" class="form-label">Título</label>
             <input type="text" th:field="*{titulo}" class="form-control" id="titulo" required>
         </div>
+
+        <label for="categoria">Categoría:</label>
+        <select id="categoria" name="categoria" th:field="*{categoria}" required>
+            <option value="Fichajes">Fichajes</option>
+            <option value="Partidos">Partidos</option>
+            <option value="Resultados">Resultados</option>
+        </select>
+
+
         <div class="mb-3">
             <label for="contenido" class="form-label">Contenido</label>
             <textarea th:field="*{contenido}" class="form-control" id="contenido" rows="5" required></textarea>
@@ -22,7 +31,9 @@
         <input type="file" name="imagenes" multiple />
 
         <button type="submit" class="btn btn-primary">Guardar Noticia</button>
+
     </form>
+    <a th:href="@{/inicio}" class="btn btn-secondary">Volver al inicio</a>
 </div>
 </body>
 </html>

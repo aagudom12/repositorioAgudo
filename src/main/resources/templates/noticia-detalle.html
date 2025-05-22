@@ -8,6 +8,16 @@
 <div class="container mt-4">
     <h2 th:text="${noticia.titulo}">Título</h2>
     <p th:text="${noticia.contenido}">Contenido</p>
+    <div th:if="${noticia.fotos != null and !noticia.fotos.isEmpty()}">
+        <h4>Fotos</h4>
+        <div>
+            <img th:each="foto : ${noticia.fotos}"
+                 th:src="@{${foto.url}}"
+                 alt="Foto de la noticia"
+                 style="max-width: 100%; height: auto; margin-bottom: 10px;">
+        </div>
+    </div>
+
     <p><strong>Publicado:</strong> <span th:text="${#temporals.format(noticia.fechaPublicacion, 'dd/MM/yyyy HH:mm')}"></span></p>
 
     <hr/>

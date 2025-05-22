@@ -6,6 +6,7 @@ import com.alfredo.proyectoDaw.entity.Noticia;
 import com.alfredo.proyectoDaw.entity.Usuario;
 import com.alfredo.proyectoDaw.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -105,6 +106,7 @@ public class NoticiaController {
         noticia.setAdmin(noticiaExistente.getAdmin());
         noticia.setFechaPublicacion(noticiaExistente.getFechaPublicacion()); // O puedes actualizar si prefieres
         noticia.setFotos(noticiaExistente.getFotos()); // Conservamos las fotos
+        noticia.setComentarios(noticiaExistente.getComentarios());
 
         Noticia noticiaActualizada = noticiaService.guardar(noticia);
 
@@ -254,6 +256,22 @@ public class NoticiaController {
         }
 
         return "redirect:/noticia/" + comentario.getNoticia().getId();
+    }
+
+
+    @GetMapping("/noticias/categoria/{categoria}")
+    public String noticiasPorCategoria(@PathVariable String categoria,
+                                       @RequestParam(defaultValue = "0") int page,
+                                       Model model) {
+
+        Page<Noticia> noticias = noticiaService.buscarPorCategoria(categoria, page);
+
+        model.addAttribute("noticias", noticias.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", noticias.getTotalPages());
+        model.addAttribute("categoriaSeleccionada", categoria);
+
+        return "inicio"; // muy importante
     }
 
 

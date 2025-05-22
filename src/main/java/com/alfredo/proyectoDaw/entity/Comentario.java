@@ -9,6 +9,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -44,5 +46,10 @@ public class Comentario {
 
     @Transient
     private int numeroLikes;
+
+    @OneToMany(mappedBy = "comentario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ComentarioLike> likes = new ArrayList<>();
+
 
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -35,9 +36,13 @@ public class Noticia {
     private LocalDateTime fechaPublicacion = LocalDateTime.now();
 
     @OneToMany(mappedBy = "noticia", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Foto> fotos;
+    private List<Foto> fotos = new ArrayList<>();
 
     @OneToMany(mappedBy = "noticia", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comentario> comentarios;
+    private List<Comentario> comentarios = new ArrayList<>();
+
+    @Column(nullable = false)
+    private String categoria;
+
 
 }

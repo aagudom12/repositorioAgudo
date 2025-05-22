@@ -39,10 +39,12 @@ public class InicioController {
                                  Model model) {
 
         Page<Noticia> noticiasPage = noticiaService.listarNoticiasPaginadas(page, size);
+        long totalNoticias = noticiaService.contarNoticias();
 
         model.addAttribute("noticias", noticiasPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", noticiasPage.getTotalPages());
+        model.addAttribute("totalNoticias", totalNoticias);
 
         return "inicio";
     }
