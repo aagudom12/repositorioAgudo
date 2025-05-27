@@ -84,9 +84,14 @@ public class NoticiaController {
         }
 
         if (!fotos.isEmpty()) {
-            noticiaGuardada.setFotos(fotos);
-            noticiaService.guardar(noticiaGuardada); // Actualiza con las fotos
+            for (Foto foto : fotos) {
+                foto.setNoticia(noticiaGuardada);
+            }
+
+            noticiaGuardada.getFotos().addAll(fotos);
+            noticiaService.guardar(noticiaGuardada);
         }
+
 
         return "redirect:/inicio";
     }

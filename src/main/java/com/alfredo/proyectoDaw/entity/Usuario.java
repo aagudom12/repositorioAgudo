@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,5 +36,14 @@ public class Usuario {
     @JsonIgnore
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Foto fotoPerfil;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Comentario> comentarios = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ComentarioLike> comentarioLikes = new ArrayList<>();
+
 
 }

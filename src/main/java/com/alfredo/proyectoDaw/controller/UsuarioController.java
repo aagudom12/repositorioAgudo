@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -150,9 +151,18 @@ public class UsuarioController {
     public String actualizarPerfil(@ModelAttribute("usuario") Usuario usuarioForm,
                                    @RequestParam("foto") MultipartFile archivoFoto,
                                    Authentication auth,
-                                   RedirectAttributes redirectAttributes) {
+                                   RedirectAttributes redirectAttributes,
+                                   Model model) {
         String email = auth.getName();
         Usuario usuarioActual = usuarioService.obtenerUsuarioPorEmail(email);
+
+        // Comprobar si el nuevo email ya lo tiene otro usuario
+        Optional<Usuario> usuarioExistente = usuarioService.comprobarUsuario(usuarioForm);
+        if (usuarioExistente.isPresent() && !usuarioExistente.get().getId().equals(usuarioActual.getId())) {
+            model.addAttribute("usuario", usuarioActual); // para mantener los datos actuales en el formulario
+            model.addAttribute("errorEmail", "El email ya está en uso por otro usuario");
+            return "perfil"; // Asumiendo que esa es tu vista del perfil
+        }
 
         // Actualizar campos del formulario
         usuarioActual.setNombre(usuarioForm.getNombre());
