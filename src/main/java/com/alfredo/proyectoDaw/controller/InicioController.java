@@ -35,7 +35,7 @@ public class InicioController {
 
     @GetMapping({"/", "/inicio"})
     public String listarNoticias(@RequestParam(defaultValue = "0") int page,
-                                 @RequestParam(defaultValue = "5") int size,
+                                 @RequestParam(defaultValue = "6") int size,
                                  Model model) {
 
         Page<Noticia> noticiasPage = noticiaService.listarNoticiasPaginadas(page, size);

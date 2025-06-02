@@ -1,119 +1,160 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Inicio - Tembleque FS Live</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
-<header class="bg-primary text-white p-3 mb-4">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <h1 class="mb-0">Inicio</h1>
-        <nav class="d-flex align-items-center justify-content-between">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="/img/logo.png" alt="Logo" width="40" height="40" class="me-2"> Tembleque FS Live
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
-                <li class="nav-item">
-                    <a class="nav-link text-white" th:href="@{/nuevaNoticia}">Crear Noticia</a>
-                </li>
-            </th:block>
+        <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+            <ul class="navbar-nav">
+                <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/nuevaNoticia}">Crear Noticia</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/usuarios}">Ver Usuarios</a>
+                    </li>
+                </th:block>
+            </ul>
 
-            <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
-                <li class="nav-item">
-                    <a class="nav-link text-white" th:href="@{/admin/usuarios}">Ver Usuarios</a>
-                </li>
-            </th:block>
-
-
-            <div class="login-form">
+            <div>
                 <th:block sec:authorize="isAnonymous()">
-                    <form th:action="@{/login}" method="post" class="d-flex align-items-center">
-                        <input type="text" name="username" placeholder="Username" class="form-control me-2" />
-                        <input type="password" name="password" placeholder="Password" class="form-control me-2" />
-                        <input type="submit" value="Log in" class="btn btn-primary" />
-                        <a th:href="@{/nuevoUsuario}" class="btn btn-outline-light ms-3">Regístrate</a>
+                    <form th:action="@{/login}" method="post" class="d-flex">
+                        <input type="text" name="username" placeholder="Usuario" class="form-control me-2" required />
+                        <input type="password" name="password" placeholder="Contraseña" class="form-control me-2" required />
+                        <button type="submit" class="btn btn-light me-2">Iniciar sesión</button>
+                        <a th:href="@{/nuevoUsuario}" class="btn btn-outline-light">Registrarse</a>
                     </form>
                 </th:block>
                 <th:block sec:authorize="isAuthenticated()">
-                    <div class="d-flex align-items-center">
-                        <span>
-                          Bienvenido
-                          <a th:href="@{/perfil}" sec:authentication="name" style="text-decoration: underline;"></a>
-                        </span>
-                        <a href="#" id="logoutEnlace" onclick="document.getElementById('formLogOut').submit()">Cerrar Sesión</a>
-                        <form th:action="@{/logout}" method="post" id="formLogOut"></form>
+                    <div class="d-flex align-items-center text-white">
+                        <span class="me-2">Bienvenido, <a th:href="@{/perfil}" class="text-white text-decoration-underline" sec:authentication="name"></a></span>
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+                        </form>
                     </div>
                 </th:block>
             </div>
-        </nav>
+        </div>
     </div>
-</header>
+</nav>
 
-<h2 class="text-center">Últimas Noticias</h2>
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12" th:if="${noticias != null and #lists.isEmpty(noticias) == false}">
-            <div class="btn-group mb-3">
-                <a href="/inicio" class="btn btn-secondary">Todas</a>
-                <a href="/noticias/categoria/Fichajes" class="btn btn-outline-primary">Fichajes</a>
-                <a href="/noticias/categoria/Partidos" class="btn btn-outline-primary">Partidos</a>
-                <a href="/noticias/categoria/Resultados" class="btn btn-outline-primary">Resultados</a>
-            </div>
+<!-- FILTROS DE CATEGORÍA -->
+<div class="container my-4">
+    <h2 class="text-center mb-4">Últimas Noticias</h2>
 
-            <div th:each="noticia : ${noticias}" class="card mb-3">
-                <div class="card-body">
-                    <h5><a th:href="@{/noticia/{id}(id=${noticia.id})}" th:text="${noticia.titulo}"></a></h5>
-                    <div th:if="${noticia.fotos != null}">
-                        <img th:each="foto : ${noticia.fotos}" th:src="@{${foto.url}}" alt="Imagen de la noticia" style="width:200px; margin:10px" />
+    <div class="btn-group d-flex justify-content-center mb-4" role="group">
+        <a href="/inicio"
+           th:class="'btn me-1 ' + (${categoriaSeleccionada} == null ? 'btn-primary' : 'btn-outline-secondary')">
+            Todas
+        </a>
+        <a href="/noticias/categoria/Fichajes"
+           th:class="'btn me-1 ' + (${categoriaSeleccionada} == 'Fichajes' ? 'btn-primary' : 'btn-outline-primary')">
+            Fichajes
+        </a>
+        <a href="/noticias/categoria/Partidos"
+           th:class="'btn me-1 ' + (${categoriaSeleccionada} == 'Partidos' ? 'btn-primary' : 'btn-outline-primary')">
+            Partidos
+        </a>
+        <a href="/noticias/categoria/Resultados"
+           th:class="'btn me-1 ' + (${categoriaSeleccionada} == 'Resultados' ? 'btn-primary' : 'btn-outline-primary')">
+            Resultados
+        </a>
+    </div>
+
+
+    <!-- NOTICIAS EN TARJETAS -->
+    <div th:if="${noticias != null and #lists.isEmpty(noticias) == false}" class="row g-4">
+        <div class="col-md-4" th:each="noticia : ${noticias}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <a th:href="@{/noticia/{id}(id=${noticia.id})}" th:text="${noticia.titulo}" class="text-decoration-none text-dark"></a>
+                    </h5>
+
+                    <!-- Mostrar solo la primera imagen de la noticia -->
+                    <div th:if="${noticia.fotos != null and !noticia.fotos.isEmpty()}">
+                        <img th:src="@{${noticia.fotos[0].url}}"
+                             class="img-fluid rounded mb-2"
+                             alt="Imagen principal de la noticia"
+                             style="max-height: 250px; object-fit: cover; width: 100%;">
                     </div>
-                    <p class="card-text" th:text="${noticia.contenido}">Contenido de la noticia...</p>
-                    <p class="card-text">
-                        <small class="text-muted">Publicada por <span th:text="${noticia.admin.nombre}">Admin</span> el
+
+                    <p class="card-text" th:text="${noticia.contenido}">Contenido...</p>
+
+                    <p class="card-text mt-auto">
+                        <small class="text-muted">
+                            Publicada por <span th:text="${noticia.admin.nombre}">Admin</span> el
                             <span th:text="${#temporals.format(noticia.fechaPublicacion, 'dd/MM/yyyy HH:mm')}"></span>
                         </small>
                     </p>
+
                     <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
-                        <a class="btn btn-sm btn-warning" th:href="@{'/editarNoticia/' + ${noticia.id}}">Editar</a>
-                    <a class="btn btn-sm btn-danger"
-                       th:href="@{'/eliminarNoticia/' + ${noticia.id}}"
-                       onclick="return confirm('¿Estás seguro de que quieres eliminar esta noticia?')">Eliminar</a>
+                        <div class="d-flex justify-content-between">
+                            <a class="btn btn-sm btn-warning" th:href="@{'/editarNoticia/' + ${noticia.id}}">Editar</a>
+                            <a class="btn btn-sm btn-danger"
+                               th:href="@{'/eliminarNoticia/' + ${noticia.id}}"
+                               onclick="return confirm('¿Eliminar esta noticia?')">Eliminar</a>
+                        </div>
                     </th:block>
                 </div>
             </div>
         </div>
-        <div th:if="${#lists.isEmpty(noticias)}">
-            <p class="text-center">Aún no hay noticias.</p>
+    </div>
+
+    <div th:if="${#lists.isEmpty(noticias)}">
+        <p class="text-center text-muted">Aún no hay noticias.</p>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    <nav th:if="${totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{'/inicio?page=' + ${currentPage - 1}}">Anterior</a>
+            </li>
+
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:text="${i + 1}" th:href="@{'/inicio?page=' + ${i}}"></a>
+            </li>
+
+            <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                <a class="page-link" th:href="@{'/inicio?page=' + ${currentPage + 1}}">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="card mt-5">
+        <div class="card-body">
+            <h5 class="card-title">📊 Estadísticas del sistema</h5>
+            <p class="card-text">
+                <strong>Total de noticias publicadas:</strong> <span th:text="${totalNoticias}">0</span>
+            </p>
         </div>
     </div>
 </div>
 
-<div class="pagination">
-    <ul>
-        <li th:if="${currentPage > 0}">
-            <a th:href="@{'/inicio?page=' + ${currentPage - 1}}">Anterior</a>
-        </li>
-
-        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-            <a th:href="@{'/inicio?page=' + ${i}}"
-               th:text="${i + 1}"
-               th:classappend="${i == currentPage} ? 'active'">Número</a>
-        </li>
-
-        <li th:if="${currentPage < totalPages - 1}">
-            <a th:href="@{'/inicio?page=' + ${currentPage + 1}}">Siguiente</a>
-        </li>
-    </ul>
-</div>
-
-<div class="card mt-4">
-    <div class="card-body">
-        <h5 class="card-title">📊 Estadísticas del sistema</h5>
-        <p class="card-text">
-            <strong>Total de noticias publicadas:</strong> <span th:text="${totalNoticias}">0</span>
-        </p>
+<!-- FOOTER -->
+<footer class="bg-dark text-white mt-5 py-3">
+    <div class="container text-center">
+        <p class="mb-0">© 2025 Tembleque FS Live · Todos los derechos reservados</p>
     </div>
-</div>
+</footer>
 
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

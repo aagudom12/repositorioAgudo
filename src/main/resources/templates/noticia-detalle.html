@@ -1,66 +1,100 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <meta charset="UTF-8">
     <title th:text="${noticia.titulo}">Detalle Noticia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<div class="container mt-4">
-    <h2 th:text="${noticia.titulo}">Título</h2>
-    <p th:text="${noticia.contenido}">Contenido</p>
+
+<div class="container mt-5">
+
+    <!-- Título -->
+    <h2 class="mb-3" th:text="${noticia.titulo}">Título</h2>
+
+    <!-- Contenido -->
+    <p class="lead" th:text="${noticia.contenido}">Contenido</p>
+
+    <!-- Carrusel de imágenes -->
     <div th:if="${noticia.fotos != null and !noticia.fotos.isEmpty()}">
-        <h4>Fotos</h4>
-        <div>
-            <img th:each="foto : ${noticia.fotos}"
-                 th:src="@{${foto.url}}"
-                 alt="Foto de la noticia"
-                 style="max-width: 100%; height: auto; margin-bottom: 10px;">
+        <h4 class="mt-4 mb-3">Fotos</h4>
+        <div id="carouselFotos" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item" th:each="foto, iterStat : ${noticia.fotos}" th:classappend="${iterStat.index == 0} ? 'active'">
+                    <img th:src="@{${foto.url}}" class="d-block w-100 rounded" style="max-height: 500px; object-fit: cover;" alt="Foto de la noticia">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselFotos" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselFotos" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
         </div>
     </div>
 
+    <!-- Fecha de publicación -->
     <p><strong>Publicado:</strong> <span th:text="${#temporals.format(noticia.fechaPublicacion, 'dd/MM/yyyy HH:mm')}"></span></p>
 
-    <hr/>
-    <h4>Comentarios</h4>
+    <hr class="my-4" />
 
-    <div th:each="comentario : ${comentarios}">
-        <p><strong th:text="${comentario.usuario.nombre}">Usuario</strong>: <span th:text="${comentario.contenido}"></span></p>
+    <!-- Sección de comentarios -->
+    <h4 class="mb-3">Comentarios</h4>
 
-        <!-- Mostrar solo si el comentario es del usuario actual -->
-        <div th:if="${#authentication.name == comentario.usuario.email}">
-            <a th:href="@{'/comentario/editar/' + ${comentario.id}}" class="btn btn-sm btn-warning">Editar</a>
+    <div th:each="comentario : ${comentarios}" class="mb-4 p-3 border rounded bg-light">
+        <div class="d-flex justify-content-between">
+            <p class="mb-1">
+                <strong th:text="${comentario.usuario.nombre}">Usuario</strong>:
+                <span th:text="${comentario.contenido}"></span>
+            </p>
+            <small class="text-muted" th:text="${#temporals.format(comentario.fechaComentario, 'dd/MM/yyyy HH:mm')}"></small>
         </div>
 
-        <!-- Mostrar si el usuario es el propietario del comentario o un admin -->
-        <div th:if="${#authentication.name == comentario.usuario.email or #authorization.expression('hasRole(''ADMIN'')')}">
-            <form th:action="@{'/comentario/eliminar/' + ${comentario.id}}" method="post"
-                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');"
-                  style="display:inline;">
-                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+        <!-- Acciones del comentario -->
+        <div class="d-flex align-items-center mt-2 gap-2">
+            <th:block th:if="${#authentication.name == comentario.usuario.email}">
+                <a th:href="@{'/comentario/editar/' + ${comentario.id}}" class="btn btn-sm btn-warning">Editar</a>
+            </th:block>
+
+            <th:block th:if="${#authentication.name == comentario.usuario.email or #authorization.expression('hasRole(''ADMIN'')')}">
+                <form th:action="@{'/comentario/eliminar/' + ${comentario.id}}" method="post"
+                      onsubmit="return confirm('¿Eliminar este comentario?');" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                </form>
+            </th:block>
+
+            <!-- Botón de Like -->
+            <form th:action="@{'/comentario/' + ${comentario.id} + '/like'}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-light">
+                    <i class="fa-heart"
+                       th:classappend="${comentario.usuarioLeDioLike} ? 'fas text-danger' : 'far text-muted'"></i>
+                    <span th:text="${comentario.numeroLikes}">0</span>
+                </button>
             </form>
         </div>
-
-        <!-- Botón de like -->
-        <form th:action="@{'/comentario/' + ${comentario.id} + '/like'}" method="post" style="display:inline;">
-            <button type="submit"style="background:none; border:none; cursor:pointer;">
-                <i class="fa-heart"
-                   th:classappend="${comentario.usuarioLeDioLike} ? 'fas text-danger' : 'far text-muted'"></i>
-                <span th:text="${comentario.numeroLikes}">0</span>
-            </button>
-        </form>
-
-        <small th:text="${#temporals.format(comentario.fechaComentario, 'dd/MM/yyyy HH:mm')}"></small>
-        <hr/>
     </div>
 
+    <!-- Formulario para agregar nuevo comentario -->
     <th:block sec:authorize="isAuthenticated()">
-        <form th:action="@{'/noticia/' + ${noticia.id} + '/comentario'}" method="post">
-            <textarea name="texto" class="form-control" required></textarea>
-            <button type="submit" class="btn btn-primary mt-2">Comentar</button>
-        </form>
+        <div class="card mb-4">
+            <div class="card-body">
+                <form th:action="@{'/noticia/' + ${noticia.id} + '/comentario'}" method="post">
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label">Añadir Comentario</label>
+                        <textarea name="texto" id="comentario" class="form-control" rows="3" placeholder="Escribe tu comentario..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Comentar</button>
+                </form>
+            </div>
+        </div>
     </th:block>
 
-    <a th:href="@{/inicio}" class="btn btn-secondary">Volver al inicio</a>
+    <!-- Botón de regreso -->
+    <a th:href="@{/inicio}" class="btn btn-secondary">← Volver al inicio</a>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

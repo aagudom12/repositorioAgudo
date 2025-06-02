@@ -1,48 +1,102 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
   <title>Editar Noticia</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<div class="container mt-4">
-  <h2>Editar Noticia</h2>
-  <form th:action="@{/actualizarNoticia}" th:object="${noticia}" method="post" enctype="multipart/form-data">
-    <input type="hidden" th:field="*{id}" />
-    <div class="mb-3">
-      <label for="titulo">Título:</label>
-      <input type="text" id="titulo" class="form-control" th:field="*{titulo}" required />
-    </div>
+<body class="bg-light">
 
-    <label for="categoria">Categoría:</label>
-    <select id="categoria" name="categoria" th:field="*{categoria}" required>
-      <option value="Fichajes">Fichajes</option>
-      <option value="Partidos">Partidos</option>
-      <option value="Resultados">Resultados</option>
-    </select>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-9">
+      <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h4 class="mb-0">Editar Noticia</h4>
+        </div>
+        <div class="card-body">
+          <form th:action="@{/actualizarNoticia}" th:object="${noticia}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <input type="hidden" th:field="*{id}" />
 
-    <div class="mb-3">
-      <label for="contenido">Contenido:</label>
-      <textarea id="contenido" class="form-control" th:field="*{contenido}" rows="5" required></textarea>
-    </div>
+            <!-- Título -->
+            <div class="mb-3">
+              <label for="titulo" class="form-label">Título</label>
+              <input type="text" id="titulo" class="form-control" th:field="*{titulo}" required placeholder="Ej. Cambios en la alineación del próximo partido">
+              <div class="invalid-feedback">El título es obligatorio.</div>
+            </div>
 
-    <!-- Mostrar imágenes actuales -->
-    <div class="mb-3">
-      <label>Imágenes actuales:</label>
-      <div th:each="foto : ${noticia.fotos}">
-        <img th:src="@{${foto.url}}" alt="Imagen" width="100" />
-        <a th:href="@{/eliminarFoto/{id}(id=${foto.id})}" class="btn btn-danger btn-sm">Eliminar</a>
+            <!-- Categoría -->
+            <div class="mb-3">
+              <label for="categoria" class="form-label">Categoría</label>
+              <select id="categoria" class="form-select" th:field="*{categoria}" required>
+                <option value="">Selecciona una categoría</option>
+                <option value="Fichajes">Fichajes</option>
+                <option value="Partidos">Partidos</option>
+                <option value="Resultados">Resultados</option>
+              </select>
+              <div class="invalid-feedback">Selecciona una categoría válida.</div>
+            </div>
+
+            <!-- Contenido -->
+            <div class="mb-3">
+              <label for="contenido" class="form-label">Contenido</label>
+              <textarea id="contenido" class="form-control" th:field="*{contenido}" rows="6" required></textarea>
+              <div class="invalid-feedback">El contenido es obligatorio.</div>
+            </div>
+
+            <!-- Imágenes actuales -->
+            <div th:if="${noticia.fotos != null and !noticia.fotos.isEmpty()}" class="mb-4">
+              <label class="form-label">Imágenes actuales</label>
+              <div class="row g-3">
+                <div class="col-auto" th:each="foto : ${noticia.fotos}">
+                  <div class="card" style="width: 120px;">
+                    <img th:src="@{${foto.url}}" alt="Imagen actual" class="card-img-top" style="height: 80px; object-fit: cover;">
+                    <div class="card-body p-2 text-center">
+                      <a th:href="@{/eliminarFoto/{id}(id=${foto.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Añadir nuevas imágenes -->
+            <div class="mb-4">
+              <label for="imagenes" class="form-label">Añadir nuevas imágenes</label>
+              <input type="file" name="imagenes" id="imagenes" class="form-control" multiple>
+              <div class="form-text">Puedes subir varias imágenes nuevas.</div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between">
+              <a th:href="@{/inicio}" class="btn btn-outline-secondary">← Cancelar</a>
+              <button type="submit" class="btn btn-success">Actualizar Noticia</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-
-    <!-- Añadir nuevas imágenes -->
-    <div class="mb-3">
-      <label for="imagenes">Añadir nuevas imágenes:</label>
-      <input type="file" name="imagenes" id="imagenes" multiple />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Actualizar</button>
-    <a th:href="@{/inicio}" class="btn btn-secondary">Cancelar</a>
-  </form>
+  </div>
 </div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Validación Bootstrap -->
+<script>
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+
 </body>
 </html>
