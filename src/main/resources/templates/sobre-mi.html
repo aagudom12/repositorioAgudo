@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sobre Mí</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<header class="bg-primary text-white text-center py-4">
+    <h1>Sobre Mí</h1>
+</header>
+
+<main class="container my-5">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-3">Carta de Presentación</h2>
+        <p>
+            Soy un estudiante apasionado por el desarrollo de software, especialmente en el ecosistema Java y tecnologías web modernas.
+            Este proyecto forma parte de mi Trabajo de Fin de Grado (TFG), y representa el esfuerzo y conocimientos adquiridos durante mi formación.
+            Me considero una persona proactiva, con ganas de seguir aprendiendo y aportar soluciones creativas y eficientes en el mundo tecnológico.
+        </p>
+
+        <h2 class="mt-4 mb-3">Currículum</h2>
+        <ul>
+            <li><strong>Nombre:</strong> Alfredo Agudo Mota</li>
+            <li><strong>Email:</strong> agudo.mota1314@gmail.com</li>
+            <li><strong>Formación:</strong> SMR, DAM, DAW - IES Juan Bosco</li>
+            <li><strong>Habilidades:</strong> Java, Spring Boot, Thymeleaf, MySQL, HTML, CSS, JavaScript, Git</li>
+            <li><strong>Idiomas:</strong> Español (nativo), Inglés (B2/C1)</li>
+        </ul>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/}" class="btn btn-outline-primary">← Volver al Inicio</a>
+    </div>
+</main>
+
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <p>© 2025 Tembleque FS Live · Todos los derechos reservados</p>
+</footer>
+
+</body>
+</html>

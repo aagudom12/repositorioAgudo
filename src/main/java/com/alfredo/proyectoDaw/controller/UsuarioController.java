@@ -5,6 +5,7 @@ import com.alfredo.proyectoDaw.entity.Usuario;
 import com.alfredo.proyectoDaw.service.FotoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -212,6 +213,15 @@ public class UsuarioController {
         usuarioService.guardar(usuarioActual);
         redirectAttributes.addFlashAttribute("mensaje", "Perfil actualizado con éxito");
         return "redirect:/perfil";
+    }
+
+    @GetMapping("/validarEmail")
+    @ResponseBody
+    public ResponseEntity<Boolean> validarEmail(@RequestParam String email) {
+        Usuario usuario = new Usuario();
+        usuario.setEmail(email);
+        boolean existe = usuarioService.comprobarUsuario(usuario).isPresent();
+        return ResponseEntity.ok(existe);
     }
 
 

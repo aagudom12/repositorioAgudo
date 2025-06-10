@@ -49,4 +49,9 @@ public class InicioController {
         return "inicio";
     }
 
+    @GetMapping("/sobreMi")
+    public String mostrarSobreMi() {
+        return "sobre-mi";
+    }
+
 }
