@@ -3,10 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 06-05-2025 a las 19:29:33
+-- Tiempo de generación: 10-06-2025 a las 20:10:48
 -- Versión del servidor: 8.0.34-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.14
 
+SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -20,13 +21,13 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `futbolbd`
 --
-CREATE DATABASE IF NOT EXISTS `futbolbd` DEFAULT CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci;
-USE `futbolbd`;
 
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `comentarios`
+--
+-- Creación: 22-04-2025 a las 17:00:13
 --
 
 DROP TABLE IF EXISTS `comentarios`;
@@ -38,10 +39,20 @@ CREATE TABLE `comentarios` (
   `usuario_id` bigint NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
 
+--
+-- RELACIONES PARA LA TABLA `comentarios`:
+--   `noticia_id`
+--       `noticias` -> `id`
+--   `usuario_id`
+--       `usuarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `comentario_likes`
+--
+-- Creación: 05-05-2025 a las 17:32:16
 --
 
 DROP TABLE IF EXISTS `comentario_likes`;
@@ -51,23 +62,44 @@ CREATE TABLE `comentario_likes` (
   `usuario_id` bigint NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
 
+--
+-- RELACIONES PARA LA TABLA `comentario_likes`:
+--   `usuario_id`
+--       `usuarios` -> `id`
+--   `comentario_id`
+--       `comentarios` -> `id`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `fotos`
+--
+-- Creación: 19-05-2025 a las 16:50:16
 --
 
 DROP TABLE IF EXISTS `fotos`;
 CREATE TABLE `fotos` (
   `id` bigint NOT NULL,
   `url` varchar(255) COLLATE utf8mb3_spanish_ci NOT NULL,
-  `id_noticia` bigint NOT NULL
+  `id_noticia` bigint DEFAULT NULL,
+  `usuario_id` bigint DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
+
+--
+-- RELACIONES PARA LA TABLA `fotos`:
+--   `usuario_id`
+--       `usuarios` -> `id`
+--   `id_noticia`
+--       `noticias` -> `id`
+--
 
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `noticias`
+--
+-- Creación: 20-05-2025 a las 17:46:34
 --
 
 DROP TABLE IF EXISTS `noticias`;
@@ -76,13 +108,22 @@ CREATE TABLE `noticias` (
   `contenido` text COLLATE utf8mb3_spanish_ci NOT NULL,
   `fecha_publicacion` datetime(6) NOT NULL,
   `titulo` varchar(255) COLLATE utf8mb3_spanish_ci NOT NULL,
-  `id_admin` bigint NOT NULL
+  `id_admin` bigint NOT NULL,
+  `categoria` varchar(255) COLLATE utf8mb3_spanish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
+
+--
+-- RELACIONES PARA LA TABLA `noticias`:
+--   `id_admin`
+--       `usuarios` -> `id`
+--
 
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `usuarios`
+--
+-- Creación: 03-04-2025 a las 17:37:19
 --
 
 DROP TABLE IF EXISTS `usuarios`;
@@ -94,6 +135,10 @@ CREATE TABLE `usuarios` (
   `nombre` varchar(255) COLLATE utf8mb3_spanish_ci DEFAULT NULL,
   `rol` varchar(255) COLLATE utf8mb3_spanish_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
+
+--
+-- RELACIONES PARA LA TABLA `usuarios`:
+--
 
 --
 -- Índices para tablas volcadas
@@ -120,6 +165,7 @@ ALTER TABLE `comentario_likes`
 --
 ALTER TABLE `fotos`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UKowy98vqkvup3gdefnu1fpxv54` (`usuario_id`),
   ADD KEY `FKo3imue65pkya2a9rdn7ybxfcx` (`id_noticia`);
 
 --
@@ -192,6 +238,7 @@ ALTER TABLE `comentario_likes`
 -- Filtros para la tabla `fotos`
 --
 ALTER TABLE `fotos`
+  ADD CONSTRAINT `FK75cdsv38sjt1brif4yhyfmx4v` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
   ADD CONSTRAINT `FKo3imue65pkya2a9rdn7ybxfcx` FOREIGN KEY (`id_noticia`) REFERENCES `noticias` (`id`);
 
 --
@@ -199,6 +246,7 @@ ALTER TABLE `fotos`
 --
 ALTER TABLE `noticias`
   ADD CONSTRAINT `FK8dh3tyuu9spe34g3ueu2fj2na` FOREIGN KEY (`id_admin`) REFERENCES `usuarios` (`id`);
+SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
