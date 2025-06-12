@@ -6,6 +6,7 @@
     <title th:text="${noticia.titulo}">Detalle Noticia</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
 </head>
 <body>
 
@@ -23,14 +24,18 @@
         <div id="carouselFotos" class="carousel slide mb-4" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item" th:each="foto, iterStat : ${noticia.fotos}" th:classappend="${iterStat.index == 0} ? 'active'">
-                    <img th:src="@{${foto.url}}" class="d-block w-100 rounded" style="max-height: 500px; object-fit: cover;" alt="Foto de la noticia">
+                    <div class="d-flex justify-content-center align-items-center"
+                         style="height: 300px; overflow: hidden; background-color: #f8f9fa;">
+                        <img th:src="@{${foto.url}}" class="rounded"
+                             style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="Foto de la noticia">
+                    </div>
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselFotos" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
+                <span class="carousel-control-prev-icon" style="filter: invert(1);"></span>
             </button>
             <button class="carousel-control-next" type="button" data-bs-target="#carouselFotos" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
+                <span class="carousel-control-next-icon" style="filter: invert(1);"></span>
             </button>
         </div>
     </div>
@@ -44,37 +49,56 @@
     <h4 class="mb-3">Comentarios</h4>
 
     <div th:each="comentario : ${comentarios}" class="mb-4 p-3 border rounded bg-light">
-        <div class="d-flex justify-content-between">
-            <p class="mb-1">
-                <strong th:text="${comentario.usuario.nombre}">Usuario</strong>:
-                <span th:text="${comentario.contenido}"></span>
-            </p>
-            <small class="text-muted" th:text="${#temporals.format(comentario.fechaComentario, 'dd/MM/yyyy HH:mm')}"></small>
-        </div>
+        <div class="d-flex">
+            <!-- Imagen de perfil -->
+            <img th:if="${comentario.usuario.fotoPerfil != null}"
+                 th:src="@{${comentario.usuario.fotoPerfil.url}}"
+                 class="rounded-circle me-3"
+                 alt="Foto perfil"
+                 style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ccc;">
 
-        <!-- Acciones del comentario -->
-        <div class="d-flex align-items-center mt-2 gap-2">
-            <th:block th:if="${#authentication.name == comentario.usuario.email}">
-                <a th:href="@{'/comentario/editar/' + ${comentario.id}}" class="btn btn-sm btn-warning">Editar</a>
-            </th:block>
+            <!-- Si no hay imagen, avatar por defecto -->
+            <img th:if="${comentario.usuario.fotoPerfil == null}"
+                 th:src="@{/img/default-user.png}"
+                 class="rounded-circle me-3"
+                 alt="Foto perfil por defecto"
+                 style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ccc;">
 
-            <th:block th:if="${#authentication.name == comentario.usuario.email or #authorization.expression('hasRole(''ADMIN'')')}">
-                <form th:action="@{'/comentario/eliminar/' + ${comentario.id}}" method="post"
-                      onsubmit="return confirm('¿Eliminar este comentario?');" class="d-inline">
-                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                </form>
-            </th:block>
+            <!-- Contenido del comentario -->
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between">
+                    <p class="mb-1">
+                        <strong th:text="${comentario.usuario.nombre}">Usuario</strong>:
+                        <span th:text="${comentario.contenido}"></span>
+                    </p>
+                    <small class="text-muted" th:text="${#temporals.format(comentario.fechaComentario, 'dd/MM/yyyy HH:mm')}"></small>
+                </div>
 
-            <!-- Botón de Like -->
-            <form th:action="@{'/comentario/' + ${comentario.id} + '/like'}" method="post" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-light">
-                    <i class="fa-heart"
-                       th:classappend="${comentario.usuarioLeDioLike} ? 'fas text-danger' : 'far text-muted'"></i>
-                    <span th:text="${comentario.numeroLikes}">0</span>
-                </button>
-            </form>
+                <!-- Acciones del comentario -->
+                <div class="d-flex align-items-center mt-2 gap-2">
+                    <th:block th:if="${#authentication.name == comentario.usuario.email}">
+                        <a th:href="@{'/comentario/editar/' + ${comentario.id}}" class="btn btn-sm btn-warning">Editar</a>
+                    </th:block>
+
+                    <th:block th:if="${#authentication.name == comentario.usuario.email or #authorization.expression('hasRole(''ADMIN'')')}">
+                        <form th:action="@{'/comentario/eliminar/' + ${comentario.id}}" method="post"
+                              onsubmit="return confirm('¿Eliminar este comentario?');" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </th:block>
+
+                    <form th:action="@{'/comentario/' + ${comentario.id} + '/like'}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-light">
+                            <i class="fa-heart"
+                               th:classappend="${comentario.usuarioLeDioLike} ? 'fas text-danger' : 'far text-muted'"></i>
+                            <span th:text="${comentario.numeroLikes}">0</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+
 
     <!-- Formulario para agregar nuevo comentario -->
     <th:block sec:authorize="isAuthenticated()">

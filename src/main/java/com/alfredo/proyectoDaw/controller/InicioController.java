@@ -1,6 +1,7 @@
 package com.alfredo.proyectoDaw.controller;
 
 import com.alfredo.proyectoDaw.entity.Noticia;
+import com.alfredo.proyectoDaw.entity.Usuario;
 import com.alfredo.proyectoDaw.service.CustomUserDetailsService;
 import com.alfredo.proyectoDaw.service.NoticiaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +38,8 @@ public class InicioController {
     @GetMapping({"/", "/inicio"})
     public String listarNoticias(@RequestParam(defaultValue = "0") int page,
                                  @RequestParam(defaultValue = "6") int size,
-                                 Model model) {
+                                 Model model,
+                                 Principal principal) {
 
         Page<Noticia> noticiasPage = noticiaService.listarNoticiasPaginadas(page, size);
         long totalNoticias = noticiaService.contarNoticias();
@@ -45,6 +48,12 @@ public class InicioController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", noticiasPage.getTotalPages());
         model.addAttribute("totalNoticias", totalNoticias);
+
+        // Agregar el usuario autenticado al modelo, si existe
+        if (principal != null) {
+            Usuario usuario = usuarioService.obtenerUsuarioPorEmail(principal.getName());
+            model.addAttribute("usuarioAutenticado", usuario);
+        }
 
         return "inicio";
     }
